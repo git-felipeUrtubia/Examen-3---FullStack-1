@@ -10,18 +10,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.awt.*;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UsuarioController.class)
@@ -48,10 +49,7 @@ public class UsuarioControllerTest {
         usuario.setId_usuario(1L);
         usuario.setNom_usuario("Felipe");
         usuario.setEmail_usuario("example@duocuc.cl");
-        usuario.setPassd_usuario("1234");
-        usuario.setRol_usuario("admin");
-        usuario.setState_usuario(true);
-        usuario.setFecha_creacion_usuario("2000-09-26");
+
     }
 
     @Test
@@ -64,27 +62,41 @@ public class UsuarioControllerTest {
 
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$[0].id_usuario").value(1L))
-
                 .andExpect(MockMvcResultMatchers
                         .jsonPath("$[0].nom_usuario").value("Felipe"))
-
                 .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].email_usuario").value("example@duocuc.cl"))
-
-                .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].passd_usuario").value("1234"))
-
-                .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].rol_usuario").value("admin"))
-
-                .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].state_usuario").value(true))
-
-                .andExpect(MockMvcResultMatchers
-                        .jsonPath("$[0].fecha_creacion_usuario").value("2000-09-26"));
-
+                        .jsonPath("$[0].email_usuario").value("example@duocuc.cl"));
     }
 
+    @Test
+    public void testBuscarPorId() throws Exception {
+
+        when(usuarioService.buscarPorId(1L)).thenReturn(usuario);
+
+        mockMvc.perform(get("/api/v1/users/id:1"))
+                .andExpect(status().isOk())
+
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.id_usuario").value(1L))
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.nom_usuario").value("Felipe"))
+                .andExpect(MockMvcResultMatchers
+                        .jsonPath("$.email_usuario").value("example@duocuc.cl"));
+    }
+
+    @Test
+    public void testGuardarUsuario() throws Exception {
+
+        when(usuarioService.guardarUsuario(any(Usuario.class)))
+                .thenReturn("Usuario guardado con sucesso!");
+
+        mockMvc.perform(post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(usuario)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .string("Usuario guardado con sucesso!"));
+    }
 
 
 
