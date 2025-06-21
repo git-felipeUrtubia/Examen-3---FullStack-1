@@ -153,7 +153,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioDTO);
     }
     //ACTUALIZAR ROL
-    @GetMapping("/updateRol/user:{id_user}/id:{id_user_cambiar}/rol:{rol_user_cambiar}")
+    @GetMapping("/updateRol/user/{id_user}/id/{id_user_cambiar}/rol/{rol_user_cambiar}")
     public ResponseEntity<String> ActualizarRol(
             @PathVariable Long id_user,
             @PathVariable Long id_user_cambiar,
